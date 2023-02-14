@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using common_vector_ops;
 using NUnit.Framework.Interfaces;
@@ -6,6 +7,7 @@ using NUnit.Framework.Internal;
 
 namespace Testing;
 
+[SuppressMessage("Assertion", "NUnit2005:Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual)")]
 public class Tests
 {
     public const int SignedMinArrayValues = -1_000;
@@ -69,5 +71,15 @@ public class Tests
         Assert.AreEqual((byte)byteArray.Sum(b => b), byteArray.AsSpan().Sum());
         Assert.AreEqual(intArray.Sum(), intArray.AsSpan().Sum());
         Assert.AreEqual(longArray.Sum(), longArray.AsSpan().Sum());
+    }
+
+    [Test]
+    public void VectorCount()
+    {
+        var random = new Random();
+        var byt = (byte)random.Next();
+        Assert.AreEqual(byteArray.Count(b => b == byt), byteArray.AsSpan().Count(byt));
+        var n = random.Next(SignedMinArrayValues, SignedMaxArrayValues);
+        Assert.AreEqual(intArray.Count(x => x == n), intArray.AsSpan().Count(n));
     }
 }
