@@ -1,10 +1,9 @@
-﻿namespace common_vector_ops;
+﻿using System.Numerics;
+
+namespace common_vector_ops;
 
 internal static class VectorOpsHelper
 {
-    public static VectorIterator<T> GetVectorIterator<T>(this Span<T> span) where T : struct
-        => new VectorIterator<T>(span);
-
-    public static VectorIterator<T> GetVectorIterator<T>(this T[] array) where T : struct
-        => array.AsSpan().GetVectorIterator();
+    public static Span<T> VectorLeftovers<T>(this Span<T> span) where T : struct 
+        => span[^(span.Length % Vector<T>.Count)..];
 }

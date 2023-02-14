@@ -5,6 +5,8 @@ using common_vector_ops;
 namespace Testing;
 
 [SuppressMessage("Assertion", "NUnit2005:Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual)")]
+[SuppressMessage("Assertion", "NUnit2002:Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr)")]
+[SuppressMessage("Assertion", "NUnit2003:Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr)")]
 public class Tests
 {
     public const int SignedMinArrayValues = -1_000;
@@ -22,8 +24,8 @@ public class Tests
     public static uint[] uintArray = Array.Empty<uint>();
     public static long[] longArray = Array.Empty<long>();
     public static ulong[] ulongArray = Array.Empty<ulong>();
-    public static Int128[] i128Array = Array.Empty<Int128>();
-    public static UInt128[] u128Array = Array.Empty<UInt128>();
+    public static Int128[] i128Array = Array.Empty<Int128>(); // Not unmanaged
+    public static UInt128[] u128Array = Array.Empty<UInt128>(); // Not unmanaged
     public static float[] floatArray = Array.Empty<float>();
     public static double[] doubleArray = Array.Empty<double>();
     public static decimal[] decimalArray = Array.Empty<decimal>();
@@ -53,13 +55,15 @@ public class Tests
         var arr = Enumerable.Range(0, 255).Select(n => (byte)n).ToArray();
         var iter = new VectorIterator<byte>(arr);
 
-        var i = 0;
         var blockSize = Vector<byte>.Count;
-        while (iter.MoveNext())
+        for (var i = 0; iter.MoveNext(); i += blockSize)
         {
             Assert.AreEqual(iter.Current, new Vector<byte>(Enumerable.Range(i, blockSize).Select(n => (byte)n).ToArray()));
-            i += blockSize;
         }
+
+        iter = new();
+        for (var i = 0; i < 10; i++)
+            Assert.IsFalse(iter.MoveNext());
     }
 
     [Test]

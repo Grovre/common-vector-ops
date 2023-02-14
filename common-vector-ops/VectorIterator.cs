@@ -37,5 +37,14 @@ public ref struct VectorIterator<T> where T : struct
         Index = -Increment;
     }
 
-    public Vector<T> Current => new Vector<T>(VectorizedSpan[Index..]);
+    public readonly Vector<T> Current => new Vector<T>(VectorizedSpan[Index..]);
+}
+
+public static class VectorIteratorHelper
+{
+    public static VectorIterator<T> GetVectorIterator<T>(this Span<T> span) where T : struct
+        => new VectorIterator<T>(span);
+
+    public static VectorIterator<T> GetVectorIterator<T>(this T[] array) where T : struct
+        => array.AsSpan().GetVectorIterator();
 }

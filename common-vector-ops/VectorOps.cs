@@ -4,9 +4,6 @@ namespace common_vector_ops;
 
 public static class VectorOps
 {
-    internal static Span<T> Leftovers<T>(this Span<T> span) where T : struct 
-        => span[^(span.Length % Vector<T>.Count)..];
-
     public static T Sum<T>(this Span<T> span) where T : unmanaged, INumber<T>
     {
         var iter = new VectorIterator<T>(span);
@@ -17,7 +14,7 @@ public static class VectorOps
         }
 
         var sum = Vector.Sum(vsum);
-        foreach (var n in span.Leftovers())
+        foreach (var n in span.VectorLeftovers())
         {
             sum += n;
         }
@@ -35,7 +32,7 @@ public static class VectorOps
             count += int.CreateChecked(Vector.Sum(Vector.BitwiseAnd(Vector.Equals(compareVector, iter.Current), Vector<T>.One)));
         }
 
-        foreach (var el in span.Leftovers())
+        foreach (var el in span.VectorLeftovers())
         {
             if (el == toCount)
                 count += 1;
