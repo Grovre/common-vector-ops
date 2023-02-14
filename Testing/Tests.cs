@@ -61,6 +61,14 @@ public class Tests
             Assert.AreEqual(iter.Current, new Vector<byte>(Enumerable.Range(i, blockSize).Select(n => (byte)n).ToArray()));
         }
 
+        var arrInt = Enumerable.Range(25, 50).ToArray();
+        var iterInt = arrInt.GetVectorIterator();
+        foreach (var v in iterInt)
+        {
+            var vstr = v.ToString();
+            Assert.IsTrue(vstr.StartsWith('<') && vstr.EndsWith('>')); // It just do
+        }
+
         iter = new();
         for (var i = 0; i < 10; i++)
             Assert.IsFalse(iter.MoveNext());
@@ -79,8 +87,8 @@ public class Tests
     {
         var random = new Random();
         var byt = (byte)random.Next();
-        Assert.AreEqual(byteArray.Count(b => b == byt), byteArray.AsSpan().Count(byt));
+        Assert.AreEqual(byteArray.Count(b => b == byt), byteArray.AsSpan().CountWithInt(byt)); // Count with int because LINQ's count returns int
         var n = random.Next(SignedMinArrayValues, SignedMaxArrayValues);
-        Assert.AreEqual(intArray.Count(x => x == n), intArray.AsSpan().Count(n));
+        Assert.AreEqual(intArray.Count(x => x == n), intArray.AsSpan().CountWithType(n)); // Count with type because type is already int
     }
 }

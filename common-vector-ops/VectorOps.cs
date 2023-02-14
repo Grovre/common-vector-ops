@@ -6,12 +6,9 @@ public static class VectorOps
 {
     public static T Sum<T>(this Span<T> span) where T : unmanaged, INumber<T>
     {
-        var iter = new VectorIterator<T>(span);
         var vsum = Vector<T>.Zero;
-        while (iter.MoveNext())
-        {
-            vsum += iter.Current;
-        }
+        foreach (var v in span.GetVectorIterator())
+            vsum += v;
 
         var sum = Vector.Sum(vsum);
         foreach (var n in span.VectorLeftovers())
@@ -22,14 +19,16 @@ public static class VectorOps
         return sum;
     }
 
-    public static int Count<T>(this Span<T> span, T toCount) where T : unmanaged, INumber<T>
+    public static int CountWithInt<T>(this Span<T> span, T toCount) where T : unmanaged, INumber<T>
     {
         var count = 0;
         var compareVector = new Vector<T>(toCount);
-        var iter = span.GetVectorIterator();
-        while (iter.MoveNext())
+        var oneVector = Vector<T>.One;
+        foreach (var v in span.GetVectorIterator())
         {
-            count += int.CreateChecked(Vector.Sum(Vector.BitwiseAnd(Vector.Equals(compareVector, iter.Current), Vector<T>.One)));
+            var vcmp = Vector.Equals(v, compareVector);
+            vcmp = Vector.BitwiseAnd(vcmp, oneVector);
+            count += int.CreateChecked(Vector.Sum(vcmp));
         }
 
         foreach (var el in span.VectorLeftovers())
@@ -37,6 +36,27 @@ public static class VectorOps
             if (el == toCount)
                 count += 1;
         }
+
+        return count;
+    }
+
+    public static T CountWithType<T>(this Span<T> span, T toCount) where T : unmanaged, INumber<T>
+    {
+        var vcount = Vector<T>.Zero;
+        var compareVector = new Vector<T>(toCount);
+        var oneVector = Vector<T>.One;
+        var iter = span.GetVectorIterator();
+        foreach (var v in iter)
+        {
+            var vcmp = Vector.Equals(v, compareVector);
+            vcmp = Vector.BitwiseAnd(vcmp, oneVector);
+            vcount += vcmp;
+        }
+
+        var count = Vector.Sum(vcount);
+        foreach (var el in iter.Leftovers)
+            if (el == toCount)
+                count += T.One;
 
         return count;
     }

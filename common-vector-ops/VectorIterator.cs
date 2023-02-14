@@ -12,11 +12,8 @@ public ref struct VectorIterator<T> where T : struct
     {
     }
 
-    public VectorIterator(T[] array)
+    public VectorIterator(T[] array) : this(array.AsSpan())
     {
-        VectorizedSpan = array.AsSpan();
-        Increment = Vector<T>.Count;
-        Index = -Increment;
     }
 
     public VectorIterator(Span<T> span)
@@ -37,7 +34,11 @@ public ref struct VectorIterator<T> where T : struct
         Index = -Increment;
     }
 
+    public VectorIterator<T> GetEnumerator()
+        => this;
+
     public readonly Vector<T> Current => new Vector<T>(VectorizedSpan[Index..]);
+    public readonly Span<T> Leftovers => VectorizedSpan[^(VectorizedSpan.Length % Increment)..];
 }
 
 public static class VectorIteratorHelper
