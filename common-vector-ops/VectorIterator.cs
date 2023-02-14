@@ -1,47 +1,43 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace common_vector_ops;
 
-public sealed class VectorIterator<T> : IEnumerator<Vector<T>> where T : struct
+public ref struct VectorIterator<T> where T : struct
 {
-    private readonly int _resetIndex;
     public int Index { get; private set; }
     public int Increment { get; }
-    public T[] VectorizedArray { get; }
+    public Span<T> VectorizedMemoryRegion { get; }
+
+    public VectorIterator() : this(Span<T>.Empty)
+    {
+    }
 
     public VectorIterator(T[] array)
     {
-        VectorizedArray = array;
+        VectorizedMemoryRegion = array.AsSpan();
         Increment = Vector<T>.Count;
-        _resetIndex = -Increment;
-        Index = _resetIndex;
+        Index = -Increment;
+    }
+
+    public VectorIterator(Span<T> span)
+    {
+        VectorizedMemoryRegion = span;
+        Increment = Vector<T>.Count;
+        Index = -Increment;
     }
 
     public bool MoveNext()
     {
         Index += Increment;
-        return Index <= VectorizedArray.Length - Increment;
+        return Index <= VectorizedMemoryRegion.Length - Increment;
     }
 
     public void Reset()
     {
-        Index = _resetIndex;
+        Index = -Increment;
     }
 
-    public Vector<T> Current
-    {
-        get
-        {
-            var v = new Vector<T>(VectorizedArray, Index);
-            return v;
-        }
-    }
-
-    object IEnumerator.Current => Current;
-
-    public void Dispose()
-    {
-        // Nothing to dispose of
-    }
+    public Vector<T> Current => new Vector<T>(VectorizedMemoryRegion[Index..]);
 }

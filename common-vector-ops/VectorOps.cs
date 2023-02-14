@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace common_vector_ops;
 
@@ -8,16 +9,14 @@ public static class VectorOps
     {
         return span[^(span.Length % Vector<T>.Count)..];
     }
+    
     public static T Sum<T>(this Span<T> span) where T : struct, INumber<T>
     {
-        var blockSize = Vector<T>.Count;
-        var blocks = span.Length / blockSize;
+        var iter = new VectorIterator<T>(span);
         var vsum = Vector<T>.Zero;
-        for (var block = 0; block < blocks; block++)
+        while (iter.MoveNext())
         {
-            var blockIndex = block * blockSize;
-            var blockVector = new Vector<T>(span[blockIndex..]);
-            vsum += blockVector;
+            vsum += iter.Current;
         }
 
         var sum = Vector.Sum(vsum);
