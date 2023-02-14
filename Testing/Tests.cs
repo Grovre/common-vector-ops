@@ -1,5 +1,8 @@
 using System.Diagnostics;
+using System.Numerics;
 using common_vector_ops;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace Testing;
 
@@ -43,6 +46,21 @@ public class Tests
         floatArray = Generator.GenerateArray(random.Next(MinArrayLength, MaxArrayLength), _ => random.NextSingle() * 2_000F);
         doubleArray = Generator.GenerateArray(random.Next(MinArrayLength, MaxArrayLength), _ => random.NextDouble() * 20_000D);
         decimalArray = Generator.GenerateArray(random.Next(MinArrayLength, MaxArrayLength), _ => (decimal)(random.NextDouble() * 30_000D));
+    }
+
+    [Test]
+    public void VectorEnumerator()
+    {
+        var arr = Enumerable.Range(0, 255).Select(n => (byte)n).ToArray();
+        var iter = new VectorIterator<byte>(arr);
+
+        var i = 0;
+        var blockSize = Vector<byte>.Count;
+        while (iter.MoveNext())
+        {
+            Assert.AreEqual(iter.Current, new Vector<byte>(Enumerable.Range(i, blockSize).Select(n => (byte)n).ToArray()));
+            i += blockSize;
+        }
     }
 
     [Test]
