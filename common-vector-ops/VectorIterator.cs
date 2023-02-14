@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace common_vector_ops;
 
