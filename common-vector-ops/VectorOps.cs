@@ -25,19 +25,19 @@ public static class VectorOps
         return sum;
     }
 
-    public static int Count<T>(this Span<T> span, T o) where T : unmanaged, INumber<T>
+    public static int Count<T>(this Span<T> span, T toCount) where T : unmanaged, INumber<T>
     {
         var count = 0;
-        var vcmp = new Vector<T>(o);
+        var compareVector = new Vector<T>(toCount);
         var iter = span.GetVectorIterator();
         while (iter.MoveNext())
         {
-            count += int.CreateChecked(Vector.Sum(Vector.BitwiseAnd(Vector.Equals(vcmp, iter.Current), Vector<T>.One)));
+            count += int.CreateChecked(Vector.Sum(Vector.BitwiseAnd(Vector.Equals(compareVector, iter.Current), Vector<T>.One)));
         }
 
         foreach (var el in span.Leftovers())
         {
-            if (el == o)
+            if (el == toCount)
                 count += 1;
         }
 

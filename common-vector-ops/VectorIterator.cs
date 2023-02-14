@@ -6,7 +6,7 @@ public ref struct VectorIterator<T> where T : struct
 {
     public int Index { get; private set; }
     public int Increment { get; }
-    public Span<T> VectorizedMemoryRegion { get; }
+    public Span<T> VectorizedSpan { get; }
 
     public VectorIterator() : this(Span<T>.Empty)
     {
@@ -14,14 +14,14 @@ public ref struct VectorIterator<T> where T : struct
 
     public VectorIterator(T[] array)
     {
-        VectorizedMemoryRegion = array.AsSpan();
+        VectorizedSpan = array.AsSpan();
         Increment = Vector<T>.Count;
         Index = -Increment;
     }
 
     public VectorIterator(Span<T> span)
     {
-        VectorizedMemoryRegion = span;
+        VectorizedSpan = span;
         Increment = Vector<T>.Count;
         Index = -Increment;
     }
@@ -29,7 +29,7 @@ public ref struct VectorIterator<T> where T : struct
     public bool MoveNext()
     {
         Index += Increment;
-        return Index <= VectorizedMemoryRegion.Length - Increment;
+        return Index <= VectorizedSpan.Length - Increment;
     }
 
     public void Reset()
@@ -37,5 +37,5 @@ public ref struct VectorIterator<T> where T : struct
         Index = -Increment;
     }
 
-    public Vector<T> Current => new Vector<T>(VectorizedMemoryRegion[Index..]);
+    public Vector<T> Current => new Vector<T>(VectorizedSpan[Index..]);
 }
