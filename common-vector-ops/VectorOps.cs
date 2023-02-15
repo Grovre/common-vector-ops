@@ -60,4 +60,31 @@ public static class VectorOps
 
         return count;
     }
+
+    public static bool Compare<T>(this Span<T> span1, Span<T> other) where T : struct
+    {
+        if (span1.Length != other.Length)
+            return false;
+
+        var iter = span1.GetVectorIterator();
+        var iter2 = other.GetVectorIterator();
+        foreach (var v1 in iter) // I do not understand why this works
+        {
+            iter.MoveNext();
+            iter2.MoveNext();
+            var v2 = iter2.Current;
+            if (!Vector.EqualsAll(v1, v2))
+                return false;
+        }
+
+        var leftovers1 = iter.Leftovers;
+        var leftovers2 = iter.Leftovers;
+        for (var i = 0; i < leftovers1.Length; i++)
+        {
+            if (!leftovers1[i].Equals(leftovers2[i]))
+                return false;
+        }
+
+        return true;
+    }
 }

@@ -7,6 +7,7 @@ namespace Testing;
 [SuppressMessage("Assertion", "NUnit2005:Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual)")]
 [SuppressMessage("Assertion", "NUnit2002:Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr)")]
 [SuppressMessage("Assertion", "NUnit2003:Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr)")]
+[SuppressMessage("Assertion", "NUnit2006:Consider using Assert.That(actual, Is.Not.EqualTo(expected)) instead of Assert.AreNotEqual(expected, actual)")]
 public class Tests
 {
     public const int SignedMinArrayValues = -1_000;
@@ -90,5 +91,15 @@ public class Tests
         Assert.AreEqual(byteArray.Count(b => b == byt), byteArray.AsSpan().CountWithInt(byt)); // Count with int because LINQ's count returns int
         var n = random.Next(SignedMinArrayValues, SignedMaxArrayValues);
         Assert.AreEqual(intArray.Count(x => x == n), intArray.AsSpan().CountWithType(n)); // Count with type because type is already int
+    }
+
+    [Test]
+    public void VectorCmp()
+    {
+        var a1 = byteArray;
+        var a2 = (byte[])a1.Clone();
+        Assert.IsTrue(a1.AsSpan().Compare(a2));
+        a2 = new byte[] { 1, 2, 3 };
+        Assert.IsFalse(a1.AsSpan().Compare(a2));
     }
 }
